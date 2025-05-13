@@ -1,8 +1,14 @@
 # ActiveRecordDateValidator
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/active_record_date_validator`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Avoiding Date Parsing Pitfalls in Ruby on Rails: Lessons Learned and a Custom Gem Solution The Problem with Rails' Date Parsing
 
-TODO: Delete this and the text above, and describe your gem
+In Ruby on Rails, date parsing can be tricky, especially when dealing with date formats like DD/MM/YYYY. Rails' default behavior is to interpret date strings in the MM/DD/YYYY format. This can lead to serious issues when the day part falls between 1 and 12, causing the date to be misinterpreted.
+
+#For instance:
+
+   If the date string is "11/05/2025", Rails interprets it as November 5th, 2025.
+
+   If the date string is "13/05/2025", Rails will fail to parse it correctly, resulting in nil.
 
 ## Installation
 

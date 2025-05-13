@@ -13,7 +13,7 @@ jobs:
     steps:
       # Step 1: Check out the code
       - uses: actions/checkout@v3
-      
+
       # Step 2: Set up Ruby environment
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -21,16 +21,36 @@ jobs:
           ruby-version: '2.7.8'
           bundler-cache: true
 
-      # Step 3: Install Bundler (explicitly)
-      - name: Install Bundler
+      # Step 3: Install system dependencies (OpenSSL and libpq-dev for PostgreSQL)
+      - name: Install System Dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libpq-dev
+
+      # Step 4: Update RubyGems and Bundler
+      - name: Update RubyGems and Install Bundler
+        run: |
+          gem update --system
           gem install bundler
-          bundle -v  # Check bundler version
+          bundle -v  # Check Bundler version
 
-      # Step 4: Install dependencies
+      # Step 5: Print environment details (for debugging)
+      - name: Print Environment Variables
+        run: env
+
+      # Step 6: Cache Bundler dependencies
+      - name: Cache gems
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-${{ matrix.ruby }}-wd-${{ github.workspace }}-Gemfile.lock-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-${{ matrix.ruby }}-wd-${{ github.workspace }}-
+
+      # Step 7: Install dependencies
       - name: Install dependencies
-        run: bundle install
+        run: bundle install --jobs 4 --retry 3
 
-      # Step 5: Run tests
+      # Step 8: Run tests
       - name: Run tests
         run: bundle exec rspec

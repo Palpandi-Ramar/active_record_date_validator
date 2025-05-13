@@ -22,7 +22,12 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Example 
+
+class Invoice < ActiveRecord::Base
+  # Using the custom date validator
+  validates_date exclude_columns: [:created_at, :updated_at]
+end
 
 ## Development
 

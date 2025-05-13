@@ -1,7 +1,6 @@
 # ActiveRecordDateValidator
 
-## Avoiding Date Parsing Pitfalls in Ruby on Rails: Lessons Learned and a Custom Gem Solution The Problem with Rails' Date Parsing
-
+## Avoiding Date Parsing Pitfalls in Ruby on Rails
 In Ruby on Rails, date parsing can be tricky, especially when dealing with date formats like DD/MM/YYYY. Rails' default behavior is to interpret date strings in the MM/DD/YYYY format. This can lead to serious issues when the day part falls between 1 and 12, causing the date to be misinterpreted.
 
 #For instance:

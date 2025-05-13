@@ -23,6 +23,25 @@ Or install it yourself as:
 ## Usage
 
 Example 
+
+The valid dates for the bill_date attribute in the Invoice model are as follows:
+
+Date object (e.g., Date.today)
+Time object (e.g., Time.now)
+ActiveSupport::TimeWithZone object (e.g., Time.zone.now)
+nil (allowed as a valid value)
+
+Invalid Date formats
+
+Non-date string (e.g., "invalid_date")
+Valid date format as a string (e.g., "2023-05-20")
+Malformed date string (e.g., "2025-99-99")
+Integer value (e.g., 12345)
+Array (e.g., [2023, 5, 20])
+Hash (e.g., {year: 2023, month: 5, day: 20})
+
+
+
 ```ruby
 class Invoice < ActiveRecord::Base
   validates_date exclude_columns: [:created_at, :updated_at]

@@ -22,25 +22,41 @@ Or install it yourself as:
 
 ## Usage
 
-Example 
+This gem provides a simple way to validate date attributes in your ActiveRecord models. You can specify columns to exclude from validation using the exclude_columns option.
+
+## Example
 
 The valid dates for the bill_date attribute in the Invoice model are as follows:
 
+# Valid Date Formats:
+
+```ruby
 Date object (e.g., Date.today)
+
 Time object (e.g., Time.now)
+
 ActiveSupport::TimeWithZone object (e.g., Time.zone.now)
+
 nil (allowed as a valid value)
+```
 
-Invalid Date formats
-
+# Invalid Date Formats:
+```ruby
 Non-date string (e.g., "invalid_date")
+
 Valid date format as a string (e.g., "2023-05-20")
+
 Malformed date string (e.g., "2025-99-99")
+
 Integer value (e.g., 12345)
+
 Array (e.g., [2023, 5, 20])
+
 Hash (e.g., {year: 2023, month: 5, day: 20})
+```
+# Example usage
 
-
+bill_date field is being validated, while created_at and updated_at fields are excluded from validation
 
 ```ruby
 class Invoice < ActiveRecord::Base

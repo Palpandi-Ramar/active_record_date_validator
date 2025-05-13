@@ -9,9 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # Step 1: Check out the code
+      # Step 1: Checkout the code
       - uses: actions/checkout@v3
 
       # Step 2: Set up Ruby environment
@@ -19,38 +19,40 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.8'
-          bundler-cache: true
+          bundler-cache: false  # Disable auto-caching to customize
 
-      # Step 3: Install system dependencies (OpenSSL and libpq-dev for PostgreSQL)
+      # Step 3: Install system dependencies for common gems (like pg and openssl)
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libssl-dev libpq-dev
+          sudo apt-get install -y libssl-dev libpq-dev build-essential
 
-      # Step 4: Update RubyGems and Bundler
-      - name: Update RubyGems and Install Bundler
+      # Step 4: Install Bundler (explicitly)
+      - name: Install Bundler
         run: |
           gem update --system
           gem install bundler
-          bundle -v  # Check Bundler version
+          bundle -v
 
-      # Step 5: Print environment details (for debugging)
-      - name: Print Environment Variables
-        run: env
-
-      # Step 6: Cache Bundler dependencies
-      - name: Cache gems
+      # Step 5: Cache Gem Dependencies (customized)
+      - name: Cache Gems
         uses: actions/cache@v3
         with:
           path: vendor/bundle
-          key: setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-${{ matrix.ruby }}-wd-${{ github.workspace }}-Gemfile.lock-${{ hashFiles('**/Gemfile.lock') }}
+          key: setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-2.7.8-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
-            setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-${{ matrix.ruby }}-wd-${{ github.workspace }}-
+            setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-2.7.8-
 
-      # Step 7: Install dependencies
-      - name: Install dependencies
-        run: bundle install --jobs 4 --retry 3
+      # Step 6: Install dependencies
+      - name: Install Dependencies
+        run: |
+          bundle config set path 'vendor/bundle'
+          bundle install --jobs 4 --retry 3
 
-      # Step 8: Run tests
-      - name: Run tests
+      # Step 7: Run tests
+      - name: Run Tests
         run: bundle exec rspec
+
+      # Step 8: Debugging - Print Environment Variables
+      - name: Print Environment
+        run: env

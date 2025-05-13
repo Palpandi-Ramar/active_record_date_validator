@@ -27,10 +27,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libssl-dev libpq-dev build-essential
 
-      # Step 4: Install Bundler (explicitly)
-      - name: Install Bundler
+      # Step 4: Install Compatible RubyGems and Bundler
+      - name: Update RubyGems and Install Bundler
         run: |
-          gem update --system
+          gem install rubygems-update -v '<= 3.4.13'
+          update_rubygems
           gem install bundler
           bundle -v
 
@@ -53,6 +54,6 @@ jobs:
       - name: Run Tests
         run: bundle exec rspec
 
-      # Step 8: Debugging - Print Environment Variables
+      # Step 8: Print Environment Variables (for debugging)
       - name: Print Environment
         run: env

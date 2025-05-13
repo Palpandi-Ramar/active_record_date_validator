@@ -11,16 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '2.7.8'
-        bundler-cache: true
-    
-    - name: Install dependencies
-      run: bundle install
+      # Step 1: Check out the code
+      - uses: actions/checkout@v3
       
-    - name: Run tests
-      run: bundle exec rspec
+      # Step 2: Set up Ruby environment
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.8'
+          bundler-cache: true
+
+      # Step 3: Install Bundler (explicitly)
+      - name: Install Bundler
+        run: |
+          gem install bundler
+          bundle -v  # Check bundler version
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: bundle install
+
+      # Step 5: Run tests
+      - name: Run tests
+        run: bundle exec rspec

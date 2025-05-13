@@ -10,50 +10,62 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      db:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: active_record_date_validator_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       # Step 1: Checkout the code
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       # Step 2: Set up Ruby environment
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.8'
-          bundler-cache: false  # Disable auto-caching to customize
+          bundler-cache: true
 
-      # Step 3: Install system dependencies for common gems (like pg and openssl)
+      # Step 3: Install System Dependencies
       - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libssl-dev libpq-dev build-essential
 
-      # Step 4: Install Compatible RubyGems and Bundler
-      - name: Update RubyGems and Install Bundler
+      # Step 4: Install Bundler
+      - name: Install Bundler
         run: |
-          gem install rubygems-update -v '<= 3.4.13'
-          update_rubygems
           gem install bundler
           bundle -v
 
-      # Step 5: Cache Gem Dependencies (customized)
-      - name: Cache Gems
-        uses: actions/cache@v3
-        with:
-          path: vendor/bundle
-          key: setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-2.7.8-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            setup-ruby-bundler-cache-v6-${{ runner.os }}-ruby-2.7.8-
+      # Step 5: Install Dependencies
+      - name: Install Gems
+        run: bundle install --jobs 4 --retry 3
 
-      # Step 6: Install dependencies
-      - name: Install Dependencies
+      # Step 6: Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL
         run: |
-          bundle config set path 'vendor/bundle'
-          bundle install --jobs 4 --retry 3
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
 
-      # Step 7: Run tests
+      # Step 7: Set DATABASE_URL from PostgreSQL container
+      - name: Set DATABASE_URL
+        run: |
+          echo "DATABASE_URL=postgres://postgres:root@localhost:5432/active_record_date_validator_test" >> $GITHUB_ENV
+
+      # Step 8: Run Tests
       - name: Run Tests
         run: bundle exec rspec
-
-      # Step 8: Print Environment Variables (for debugging)
-      - name: Print Environment
-        run: env
